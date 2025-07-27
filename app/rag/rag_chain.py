@@ -1,9 +1,7 @@
-# app/rag/rag_chain.py
-
 from app.rag.vectorstore import get_chroma_vectorstore
 from app.core.config import HF_TOKEN
 from transformers import pipeline
-from typing import List
+from typing import List, Dict
 
 # Load or create collection
 vectorstore = get_chroma_vectorstore(persist=True)
@@ -11,13 +9,20 @@ vectorstore = get_chroma_vectorstore(persist=True)
 # Load HuggingFace LLM for response generation
 qa_pipeline = pipeline(
     "text-generation",
-    model="tiiuae/falcon-7b-instruct",  # You can change this later
+    model="tiiuae/falcon-7b-instruct",  # Replace with preferred model
     tokenizer="tiiuae/falcon-7b-instruct",
     token=HF_TOKEN,
-    device=0  # if GPU, or -1 for CPU
+    device=0  # Set to -1 for CPU
 )
 
-def retrieve_relevant_docs(query: str, k: int = 3) -> List[str]:
+# Simple NSFW keyword filter — extendable with classifier later
+NSFW_KEYWORDS = {"nude", "sex", "porn", "violence", "erotic", "nsfw", "explicit", "rape", "drugs", "weapon", "murder"}
+
+def is_safe(text: str) -> bool:
+    text_lower = text.lower()
+    return not any(word in text_lower for word in NSFW_KEYWORDS)
+
+def retrieve_relevant_docs(query: str, k: int = 5) -> List[str]:
     results = vectorstore.query(query_texts=[query], n_results=k)
     documents = results.get("documents", [[]])[0]
     return documents
@@ -32,4 +37,21 @@ Question: {query}
 Answer:"""
 
     response = qa_pipeline(prompt, max_new_tokens=256, do_sample=True, temperature=0.7)
-    return response[0]['generated_text'].replace(prompt, "").strip()
+    generated = response[0]['generated_text'].replace(prompt, "").strip()
+
+    if not is_safe(generated):
+        return "⚠️ Sorry, the generated content was flagged as potentially inappropriate and has been filtered."
+
+    return generated
+
+def embed_transcript_to_chroma(filename: str, segments: List[Dict[str, str]]):
+    """
+    Converts transcript segments to a text blob and stores it in the vectorstore.
+    """
+    content = "\n".join(f"{seg['speaker']}: {seg['text']}" for seg in segments)
+    if not content.strip():
+        print(f"[WARN] Transcript for {filename} is empty. Skipping embedding.")
+        return
+
+    print(f"[INFO] Embedding transcript for: {filename}")
+    vectorstore.add_texts([content], metadatas=[{"source": filename}])

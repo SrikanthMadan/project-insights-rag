@@ -1,8 +1,8 @@
 import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import HuggingFaceEmbeddings
-from app.rag.vectorstore import get_vectorstore
-from app.core.config import settings
+from app.rag.vectorstore import get_chroma_vectorstore
+from app.core.config import CHROMA_DB_DIR
 
 TRANSCRIPTS_DIR = "app/data/transcripts"  # Your input .txt files
 
@@ -23,7 +23,7 @@ def ingest_documents():
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
 
-    vectorstore = get_vectorstore(embedding=embeddings)
+    vectorstore = get_chroma_vectorstore(embedding=embeddings)
     vectorstore.add_documents(documents)
 
     print(f"[INFO] Ingested {len(documents)} chunks.")

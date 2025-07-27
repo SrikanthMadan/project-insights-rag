@@ -3,8 +3,8 @@ import tempfile
 import uuid
 from pathlib import Path
 
-import whisper
-from moviepy.editor import VideoFileClip
+import whisper # type: ignore
+from moviepy.editor import VideoFileClip # type: ignore
 from pyannote.audio import Pipeline
 
 TRANSCRIPTS_DIR = Path("app/data/transcripts")
