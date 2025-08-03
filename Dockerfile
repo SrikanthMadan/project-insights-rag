@@ -15,7 +15,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 # Create required writable directories and set permissions
 RUN mkdir -p /tmp/.cache/whisper \
-             /tmp/huggingface/hub \
+             /tmp/huggingface/hub/.locks \
              /tmp/matplotlib \
              /tmp/data/transcripts \
              /tmp/chroma_db \
