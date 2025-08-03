@@ -13,7 +13,7 @@ from app.core.config import HF_TOKEN
 
 from app.rag.rag_chain import embed_transcript_to_chroma
 
-TRANSCRIPTS_DIR = Path("tmp/data/transcripts")
+TRANSCRIPTS_DIR = Path("/tmp/data/transcripts")
 TRANSCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
 
 WHISPER_MODEL = "large"
