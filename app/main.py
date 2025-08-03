@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import router
 from app.rag.vectorstore import get_chroma_vectorstore
+from app.core.config import HF_TOKEN  
 
 app = FastAPI(title="Project Insights RAG")
 

@@ -2,9 +2,7 @@ import os
 import chromadb
 from chromadb.config import Settings
 
-DEFAULT_CHROMA_PATH = "./chroma_db" if os.getenv("ENV", "local") == "local" else "/data/chroma_db"
-CHROMA_DB_DIR = os.getenv("CHROMA_DB_DIR", DEFAULT_CHROMA_PATH)
-
+CHROMA_DB_DIR = os.getenv("CHROMA_DB_DIR")
 
 client = None
 collection = None

@@ -9,6 +9,7 @@ import whisper
 from pyannote.audio import Pipeline
 from moviepy.editor import VideoFileClip
 from pydub import AudioSegment
+from app.core.config import HF_TOKEN
 
 from app.rag.rag_chain import embed_transcript_to_chroma
 
@@ -23,7 +24,7 @@ whisper_model = whisper.load_model(WHISPER_MODEL).to(WHISPER_DEVICE)
 
 diarization_pipeline = Pipeline.from_pretrained(
     "pyannote/speaker-diarization@2.1",
-    use_auth_token=os.environ.get("HF_TOKEN")
+    use_auth_token=HF_TOKEN
 )
 
 SUPPORTED_VIDEO_EXTS = [".mp4", ".mov", ".avi", ".mkv"]

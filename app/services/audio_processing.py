@@ -2,6 +2,8 @@ import os
 import tempfile
 import uuid
 from pathlib import Path
+from app.core.config import HF_TOKEN
+
 
 import whisper # type: ignore
 from moviepy.editor import VideoFileClip # type: ignore
@@ -14,8 +16,7 @@ AUDIO_TEMP_DIR = Path("app/data/temp_audio")
 whisper_model = whisper.load_model("large")
 
 # Load pyAnnote diarization pipeline using HF token
-HUGGINGFACE_TOKEN = os.getenv("HUGGINGFACE_TOKEN")
-diarization_pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token=HUGGINGFACE_TOKEN)
+diarization_pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token=HF_TOKEN)
 
 
 def extract_audio(input_path: str) -> str:
