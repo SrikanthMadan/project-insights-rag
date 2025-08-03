@@ -9,8 +9,8 @@ import whisper # type: ignore
 from moviepy.editor import VideoFileClip # type: ignore
 from pyannote.audio import Pipeline
 
-TRANSCRIPTS_DIR = Path("app/data/transcripts")
-AUDIO_TEMP_DIR = Path("app/data/temp_audio")
+TRANSCRIPTS_DIR = Path("tmp/data/transcripts")
+AUDIO_TEMP_DIR = Path("tmp/data/temp_audio")
 
 # Load Whisper model globally
 whisper_model = whisper.load_model("large")
