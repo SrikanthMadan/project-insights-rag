@@ -1,15 +1,18 @@
 # Use PyTorch with CUDA (compatible with Hugging Face GPU Spaces)
 FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
 
+
 # Environment setup
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=Asia/Kolkata \
-    XDG_CACHE_HOME=/tmp \
+    HOME=/tmp \
+    XDG_CACHE_HOME=/tmp/.cache \
     HF_HOME=/tmp/huggingface \
     MPLCONFIGDIR=/tmp/matplotlib \
     TRANSCRIPTS_DIR=/tmp/data/transcripts \
     CHROMA_DB_DIR=/tmp/chroma_db \
     OMP_NUM_THREADS=1
+
 
 # Set working directory
 WORKDIR /app
