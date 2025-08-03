@@ -13,8 +13,11 @@ from app.core.config import HF_TOKEN
 
 from app.rag.rag_chain import embed_transcript_to_chroma
 
-TRANSCRIPTS_DIR = Path("/tmp/data/transcripts")
+TRANSCRIPTS_DIR = Path(os.getenv("TRANSCRIPTS_DIR", "/tmp/data/transcripts"))
 TRANSCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
+AUDIO_TEMP_DIR = Path(os.getenv("AUDIO_TEMP_DIR", "/tmp/data/temp_audio"))
+AUDIO_TEMP_DIR.mkdir(parents=True, exist_ok=True)
+
 
 WHISPER_MODEL = "large"
 WHISPER_DEVICE = "cuda" if os.environ.get("USE_CUDA", "1") == "1" else "cpu"
@@ -33,7 +36,7 @@ SUPPORTED_AUDIO_EXTS = [".mp3", ".wav", ".m4a"]
 
 def extract_audio(file_path: str) -> str:
     ext = Path(file_path).suffix.lower()
-    temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+    temp_audio = open(AUDIO_TEMP_DIR / f"{uuid.uuid4().hex}.wav", "wb")
 
     try:
         if ext in SUPPORTED_VIDEO_EXTS:

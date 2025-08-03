@@ -10,11 +10,18 @@ ENV DEBIAN_FRONTEND=noninteractive \
     MPLCONFIGDIR=/tmp/matplotlib \
     TRANSCRIPTS_DIR=/tmp/data/transcripts \
     CHROMA_DB_DIR=/tmp/chroma_db \
-    OMP_NUM_THREADS=1
+    AUDIO_TEMP_DIR=/tmp/data/temp_audio \
+    OMP_NUM_THREADS=4
 
 # Create required writable directories and set permissions
-RUN mkdir -p /tmp/.cache/whisper /tmp/huggingface /tmp/matplotlib /tmp/data/transcripts /tmp/chroma_db \
- && chmod -R 777 /tmp/.cache /tmp/huggingface /tmp/matplotlib /tmp/data /tmp/chroma_db
+RUN mkdir -p \
+    /tmp/.cache/whisper \
+    /tmp/huggingface \
+    /tmp/matplotlib \
+    /tmp/data/transcripts \
+    /tmp/chroma_db \
+    /tmp/data/temp_audio \
+ && chmod -R 777 /tmp
 
 # Set working directory
 WORKDIR /app

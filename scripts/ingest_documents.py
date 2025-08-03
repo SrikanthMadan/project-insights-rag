@@ -4,7 +4,7 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from app.rag.vectorstore import get_chroma_vectorstore
 from app.core.config import CHROMA_DB_DIR
 
-TRANSCRIPTS_DIR = "app/data/transcripts"  # Your input .txt files
+TRANSCRIPTS_DIR = os.getenv("TRANSCRIPTS_DIR", "app/data/transcripts")
 
 def ingest_documents():
     text_splitter = RecursiveCharacterTextSplitter(
