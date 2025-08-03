@@ -1,0 +1,6 @@
+# space.yaml
+title: Project Insights RAG
+sdk: docker
+python_version: 3.10
+app_file: app/main.py
+port: 7860
