@@ -2,6 +2,8 @@
 FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
 
 # Environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Kolkata
 ENV TRANSFORMERS_CACHE=/tmp/huggingface
 ENV HF_HOME=/tmp/huggingface
 ENV MPLCONFIGDIR=/tmp/matplotlib
