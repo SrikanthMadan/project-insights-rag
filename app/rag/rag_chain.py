@@ -2,21 +2,29 @@ from app.rag.vectorstore import get_chroma_vectorstore
 from app.core.config import HF_TOKEN
 from transformers import pipeline
 from typing import List, Dict
+import torch
+from functools import lru_cache
 
 # Load or create collection
 vectorstore = get_chroma_vectorstore(persist=True)
 
-# Load HuggingFace LLM for response generation
-qa_pipeline = pipeline(
-    "text-generation",
-    model="tiiuae/falcon-7b-instruct",  # Replace with preferred model
-    tokenizer="tiiuae/falcon-7b-instruct",
-    token=HF_TOKEN,
-    device=0  # Set to -1 for CPU
-)
+# Lazy-load HuggingFace LLM with safe device detection
+@lru_cache(maxsize=1)
+def get_pipeline():
+    device = 0 if torch.cuda.is_available() else -1
+    return pipeline(
+        "text-generation",
+        model="tiiuae/falcon-7b-instruct",
+        tokenizer="tiiuae/falcon-7b-instruct",
+        token=HF_TOKEN,
+        device=device
+    )
 
 # Simple NSFW keyword filter — extendable with classifier later
-NSFW_KEYWORDS = {"nude", "sex", "porn", "violence", "erotic", "nsfw", "explicit", "rape", "drugs", "weapon", "murder"}
+NSFW_KEYWORDS = {
+    "nude", "sex", "porn", "violence", "erotic", "nsfw",
+    "explicit", "rape", "drugs", "weapon", "murder"
+}
 
 def is_safe(text: str) -> bool:
     text_lower = text.lower()
@@ -36,11 +44,11 @@ Context: {context}
 Question: {query}
 Answer:"""
 
-    response = qa_pipeline(prompt, max_new_tokens=256, do_sample=True, temperature=0.7)
+    response = get_pipeline()(prompt, max_new_tokens=256, do_sample=True, temperature=0.7)
     generated = response[0]['generated_text'].replace(prompt, "").strip()
 
     if not is_safe(generated):
-        return "⚠️ Sorry, the generated content was flagged as potentially inappropriate and has been filtered."
+        return "Sorry, the generated content was flagged as potentially inappropriate and has been filtered."
 
     return generated
 
