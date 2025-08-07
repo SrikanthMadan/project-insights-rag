@@ -1,5 +1,5 @@
 # Use PyTorch with CUDA (compatible with Hugging Face GPU Spaces)
-FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+FROM pytorch/pytorch:2.2.2-cuda12.1-cudnn8-runtime
 
 # Environment setup
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -11,7 +11,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TRANSCRIPTS_DIR=/tmp/data/transcripts \
     CHROMA_DB_DIR=/tmp/chroma_db \
     AUDIO_TEMP_DIR=/tmp/temp_audio \
-    OMP_NUM_THREADS=4
+    OMP_NUM_THREADS=4 \
+    USE_CUDA=1
 
 # Create required writable directories and set permissions
 RUN mkdir -p /tmp/.cache/whisper \
@@ -25,17 +26,18 @@ RUN mkdir -p /tmp/.cache/whisper \
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Install system and Python dependencies
 COPY requirements.txt .
 RUN apt-get update && apt-get install -y \
     git ffmpeg libsndfile1 wget build-essential \
  && pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir -r requirements.txt \
+ && pip install --no-cache-dir sentencepiece protobuf \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# (Optional) Preload Falcon model to avoid slow startup
-RUN python -c "from transformers import pipeline; pipeline('text-generation', model='tiiuae/falcon-7b-instruct')"
+# (Optional) Preload FLAN-T5 model to avoid slow startup
+RUN python -c "from transformers import pipeline; pipeline('text2text-generation', model='google/flan-t5-base')"
 
 # Copy your app code
 COPY . .

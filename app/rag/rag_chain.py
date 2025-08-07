@@ -11,11 +11,11 @@ vectorstore = get_chroma_vectorstore(persist=True)
 # Lazy-load HuggingFace LLM with safe device detection
 @lru_cache(maxsize=1)
 def get_pipeline():
-    device = 0 if torch.cuda.is_available() else -1
+    device = 0
     return pipeline(
-        "text-generation",
-        model="tiiuae/falcon-7b-instruct",
-        tokenizer="tiiuae/falcon-7b-instruct",
+        "text2text-generation",
+        model="google/flan-t5-base",
+        tokenizer="google/flan-t5-base",
         token=HF_TOKEN,
         device=device
     )
@@ -39,7 +39,7 @@ def generate_answer(query: str) -> str:
     context_docs = retrieve_relevant_docs(query)
     context = "\n".join(context_docs)
 
-    prompt = f"""You are an assistant helping with project updates.
+    prompt = f"""nswer the question using the following context.
 Context: {context}
 Question: {query}
 Answer:"""

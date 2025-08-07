@@ -23,7 +23,8 @@ WHISPER_MODEL = "large"
 WHISPER_DEVICE = "cuda" if os.environ.get("USE_CUDA", "1") == "1" else "cpu"
 
 # Load models once
-whisper_model = whisper.load_model(WHISPER_MODEL).to(WHISPER_DEVICE)
+whisper_model = whisper.load_model(WHISPER_MODEL, device=WHISPER_DEVICE)
+
 
 diarization_pipeline = Pipeline.from_pretrained(
     "pyannote/speaker-diarization@2.1",
