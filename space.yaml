@@ -1,4 +1,6 @@
 # space.yaml
 title: Project Insights RAG
 sdk: docker
+runtime:
+  gpu: true
 port: 7860
