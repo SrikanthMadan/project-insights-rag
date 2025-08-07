@@ -14,8 +14,8 @@ def get_pipeline():
     device = 0
     return pipeline(
         "text2text-generation",
-        model="google/flan-t5-base",
-        tokenizer="google/flan-t5-base",
+        model="google/flan-t5-large",
+        tokenizer="google/flan-t5-large",
         token=HF_TOKEN,
         device=device
     )

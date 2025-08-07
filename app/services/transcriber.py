@@ -10,7 +10,7 @@ from pyannote.audio import Pipeline
 from moviepy.editor import VideoFileClip
 from pydub import AudioSegment
 from app.core.config import HF_TOKEN
-
+from app.models.transcript import TranscriptResponse, TranscriptSegment
 from app.rag.rag_chain import embed_transcript_to_chroma
 
 TRANSCRIPTS_DIR = Path(os.getenv("TRANSCRIPTS_DIR", "/tmp/data/transcripts"))
@@ -18,13 +18,11 @@ TRANSCRIPTS_DIR.mkdir(parents=True, exist_ok=True)
 AUDIO_TEMP_DIR = Path(os.getenv("AUDIO_TEMP_DIR", "/tmp/data/temp_audio"))
 AUDIO_TEMP_DIR.mkdir(parents=True, exist_ok=True)
 
-
 WHISPER_MODEL = "large"
 WHISPER_DEVICE = "cuda" if os.environ.get("USE_CUDA", "1") == "1" else "cpu"
 
 # Load models once
 whisper_model = whisper.load_model(WHISPER_MODEL, device=WHISPER_DEVICE)
-
 
 diarization_pipeline = Pipeline.from_pretrained(
     "pyannote/speaker-diarization@2.1",
@@ -56,7 +54,7 @@ def extract_audio(file_path: str) -> str:
     return temp_audio.name
 
 
-def transcribe_with_diarization(file_path: str) -> Dict:
+def transcribe_with_diarization(file_path: str) -> TranscriptResponse:
     print(f"Processing: {file_path}")
     audio_path = extract_audio(file_path)
 
@@ -87,6 +85,8 @@ def transcribe_with_diarization(file_path: str) -> Dict:
                 if text:
                     output_segments.append({
                         "speaker": speaker_map[speaker],
+                        "start": seg["start"],
+                        "end": seg["end"],
                         "text": text
                     })
 
@@ -95,16 +95,15 @@ def transcribe_with_diarization(file_path: str) -> Dict:
         transcript_path = TRANSCRIPTS_DIR / f"{filename}_transcript.txt"
         with open(transcript_path, "w") as f:
             for seg in output_segments:
-                f.write(f"{seg['speaker']}: {seg['text']}\n")
+                f.write(f"{seg['speaker']} [{seg['start']:.2f}-{seg['end']:.2f}]: {seg['text']}\n")
 
         # Embed in vectorstore
         embed_transcript_to_chroma(filename, output_segments)
 
-        return {
-            "file": file_path,
-            "transcript_file": str(transcript_path),
-            "segments": output_segments
-        }
+        return TranscriptResponse(
+            filename=os.path.basename(file_path),
+            segments=[TranscriptSegment(**seg) for seg in output_segments]
+        )
 
     except Exception as e:
         raise RuntimeError(f"Transcription/diarization failed: {e}")

@@ -3,6 +3,8 @@ from typing import List
 
 class TranscriptSegment(BaseModel):
     speaker: str
+    start: float
+    end: float
     text: str
 
 class TranscriptResponse(BaseModel):
