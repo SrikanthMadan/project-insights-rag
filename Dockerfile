@@ -36,8 +36,11 @@ RUN apt-get update && apt-get install -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# (Optional) Preload FLAN-T5 model to avoid slow startup
-RUN python -c "from transformers import pipeline; pipeline('text2text-generation', model='google/flan-t5-base')"
+# Preload FLAN-T5 model without invoking high-level pipeline
+RUN python -c "\
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM; \
+AutoTokenizer.from_pretrained('google/flan-t5-base'); \
+AutoModelForSeq2SeqLM.from_pretrained('google/flan-t5-base')"
 
 # Copy your app code
 COPY . .
